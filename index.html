@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Подбор ВУЗов - Анкета</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <div id="questionnaire" class="max-w-md mx-auto perplexity-card slide-up">
+            <h1 class="gradient-text">Анкета для подбора ВУЗа</h1>
+            
+            <div class="progress-bar">
+                <div id="progress-bar-fill" class="progress-bar-fill gradient-primary" style="width: 20%"></div>
+            </div>
+            
+            <div id="step-1">
+                <h2>Шаг 1: Бюджет на обучение</h2>
+                <select id="budget">
+                    <option value="">Любой</option>
+                    <option value="low">До 150 000 руб/год</option>
+                    <option value="medium">150 000 - 250 000 руб/год</option>
+                    <option value="high">Свыше 250 000 руб/год</option>
+                </select>
+            </div>
+            
+            <div id="step-2" class="hidden">
+                <h2>Шаг 2: Регион</h2>
+                <select id="region">
+                    <option value="">Любой</option>
+                    <option value="Москва">Москва</option>
+                    <option value="Санкт-Петербург">Санкт-Петербург</option>
+                    <option value="Томск">Томск</option>
+                    <option value="Новосибирск">Новосибирск</option>
+                    <option value="Екатеринбург">Екатеринбург</option>
+                    <option value="Казань">Казань</option>
+                    <option value="Красноярск">Красноярск</option>
+                    <option value="Владивосток">Владивосток</option>
+                    <option value="Ростов-на-Дону">Ростов-на-Дону</option>
+                    <option value="Нижний Новгород">Нижний Новгород</option>
+                    <option value="Белгород">Белгород</option>
+                    <option value="Уфа">Уфа</option>
+                    <option value="Самара">Самара</option>
+                    <option value="Воронеж">Воронеж</option>
+                    <option value="Челябинск">Челябинск</option>
+                    <option value="Тюмень">Тюмень</option>
+                    <option value="Ставрополь">Ставрополь</option>
+                </select>
+            </div>
+            
+            <div id="step-3" class="hidden">
+                <h2>Шаг 3: Средний балл ЕГЭ</h2>
+                <select id="score">
+                    <option value="">Любой</option>
+                    <option value="low">До 75</option>
+                    <option value="medium">75-85</option>
+                    <option value="high">85+</option>
+                </select>
+            </div>
+            
+            <div id="step-4" class="hidden">
+                <h2>Шаг 4: Специализация</h2>
+                <select id="specialization">
+                    <option value="">Любая</option>
+                    <option value="Технический">Техническая</option>
+                    <option value="Гуманитарный">Гуманитарная</option>
+                    <option value="Медицинский">Медицинская</option>
+                    <option value="Экономический">Экономическая</option>
+                    <option value="Юридический">Юридическая</option>
+                    <option value="Педагогический">Педагогическая</option>
+                    <option value="Аграрный">Аграрная</option>
+                    <option value="Универсальный">Универсальная</option>
+                </select>
+            </div>
+            
+            <div id="step-5" class="hidden">
+                <h2>Шаг 5: Предпочитаемые предметы</h2>
+                <p class="text-secondary">Выберите предметы, которые вы хотели бы изучать (можно выбрать несколько)</p>
+                <div class="checkbox-container">
+                    <div class="checkbox-item">
+                        <input type="checkbox" id="subject-math" data-subject="Математика">
+                        <label for="subject-math">Математика</label>
+                    </div>
+                    <div class="checkbox-item">
+                        <input type="checkbox" id="subject-physics" data-subject="Физика">
+                        <label for="subject-physics">Физика</label>
+                    </div>
+                    <div class="checkbox-item">
+                        <input type="checkbox" id="subject-chemistry" data-subject="Химия">
+                        <label for="subject-chemistry">Химия</label>
+                    </div>
+                    <div class="checkbox-item">
+                        <input type="checkbox" id="subject-biology" data-subject="Биология">
+                        <label for="subject-biology">Биология</label>
+                    </div>
+                    <div class="checkbox-item">
+                        <input type="checkbox" id="subject-history" data-subject="История">
+                        <label for="subject-history">История</label>
+                    </div>
+                    <div class="checkbox-item">
+                        <input type="checkbox" id="subject-social" data-subject="Обществознание">
+                        <label for="subject-social">Обществознание</label>
+                    </div>
+                    <div class="checkbox-item">
+                        <input type="checkbox" id="subject-literature" data-subject="Литература">
+                        <label for="subject-literature">Литература</label>
+                    </div>
+                    <div class="checkbox-item">
+                        <input type="checkbox" id="subject-russian" data-subject="Русский язык">
+                        <label for="subject-russian">Русский язык</label>
+                    </div>
+                    <div class="checkbox-item">
+                        <input type="checkbox" id="subject-foreign" data-subject="Иностранный язык">
+                        <label for="subject-foreign">Иностранный язык</label>
+                    </div>
+                    <div class="checkbox-item">
+                        <input type="checkbox" id="subject-informatics" data-subject="Информатика">
+                        <label for="subject-informatics">Информатика</label>
+                    </div>
+                    <div class="checkbox-item">
+                        <input type="checkbox" id="subject-geography" data-subject="География">
+                        <label for="subject-geography">География</label>
+                    </div>
+                    <div class="checkbox-item">
+                        <input type="checkbox" id="subject-drawing" data-subject="Рисунок">
+                        <label for="subject-drawing">Рисунок</label>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="button-container">
+                <button id="prev-btn" class="btn btn-secondary btn-disabled" disabled>Назад</button>
+                <button id="next-btn" class="btn btn-primary">Далее</button>
+            </div>
+        </div>
+        
+        <div id="results" class="fade-in hidden">
+            <h1 class="gradient-text">Рекомендуемые ВУЗы</h1>
+            
+            <div id="universities-list" class="space-y-4">
+                <!-- Результаты будут добавлены здесь -->
+            </div>
+            
+            <button id="back-to-form-btn" class="btn btn-secondary mt-6">Вернуться к анкете</button>
+        </div>
+    </div>
+
+    <script src="universities.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>
