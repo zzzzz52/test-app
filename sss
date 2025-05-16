@@ -1,0 +1,13 @@
+git init
+git config user.name "zzzzz52"
+git config user.email "mirkin20@vk.ru"
+
+echo # See https://help.github.com/articles/ignoring-files/ for more about ignoring files. > .gitignore
+echo /node_modules >> .gitignore
+echo /.next/ >> .gitignore
+echo /out/ >> .gitignore
+echo /build >> .gitignore
+
+git add .
+git commit -m "Initial commit"
+git branch -M main
