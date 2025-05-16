@@ -1,0 +1,408 @@
+'use client'
+import { useState } from 'react'
+
+interface University {
+  id: number
+  name: string
+  region: string
+  budget: number
+  score: number
+  specialization: string
+  subjects: string[]
+  dormitory: boolean
+  militaryDepartment: boolean
+  internationalPrograms: boolean
+  sportFacilities: boolean
+  distanceLearning: boolean
+  rank: number
+  departments: string[] // Кафедры вуза
+}
+
+export default function Questionnaire() {
+  const [answers, setAnswers] = useState({
+    budget: '',
+    region: '',
+    score: '',
+    specialization: '',
+    subjects: [] as string[]
+  })
+  const [showResults, setShowResults] = useState(false)
+  const [currentStep, setCurrentStep] = useState(1)
+  const totalSteps = 5
+
+  // База данных из 50+ ВУЗов на основе рейтинга RAEX
+  const universities: University[] = [
+    { id: 1, name: 'Московский государственный университет имени М.В. Ломоносова', region: 'Москва', budget: 350000, score: 95, specialization: 'Универсальный', subjects: ['Математика', 'Физика', 'Химия', 'Биология', 'История', 'Литература', 'Иностранный язык'], dormitory: true, militaryDepartment: true, internationalPrograms: true, sportFacilities: true, distanceLearning: true, rank: 1, departments: ['Механико-математический факультет', 'Физический факультет', 'Химический факультет', 'Биологический факультет', 'Факультет вычислительной математики и кибернетики', 'Исторический факультет', 'Филологический факультет'] },
+    { id: 2, name: 'Московский государственный технический университет имени Н.Э. Баумана', region: 'Москва', budget: 300000, score: 92, specialization: 'Технический', subjects: ['Математика', 'Физика', 'Информатика'], dormitory: true, militaryDepartment: true, internationalPrograms: true, sportFacilities: true, distanceLearning: false, rank: 2, departments: ['Факультет информатики и систем управления', 'Радиотехнический факультет', 'Факультет машиностроительных технологий', 'Аэрокосмический факультет', 'Факультет робототехники и комплексной автоматизации'] },
+    { id: 3, name: 'Московский физико-технический институт', region: 'Москва', budget: 320000, score: 94, specialization: 'Технический', subjects: ['Математика', 'Физика', 'Информатика'], dormitory: true, militaryDepartment: true, internationalPrograms: true, sportFacilities: true, distanceLearning: false, rank: 3, departments: ['Факультет радиотехники и кибернетики', 'Факультет общей и прикладной физики', 'Факультет аэрофизики и космических исследований', 'Факультет молекулярной и биологической физики', 'Физтех-школа прикладной математики и информатики'] },
+    { id: 4, name: 'Санкт-Петербургский государственный университет', region: 'Санкт-Петербург', budget: 280000, score: 90, specialization: 'Универсальный', subjects: ['Математика', 'Физика', 'Химия', 'Биология', 'История', 'Литература', 'Иностранный язык'], dormitory: true, militaryDepartment: true, internationalPrograms: true, sportFacilities: true, distanceLearning: true, rank: 4, departments: ['Математико-механический факультет', 'Физический факультет', 'Химический факультет', 'Биологический факультет', 'Исторический факультет', 'Филологический факультет', 'Факультет международных отношений'] },
+    { id: 5, name: 'Национальный исследовательский ядерный университет «МИФИ»', region: 'Москва', budget: 290000, score: 93, specialization: 'Технический', subjects: ['Математика', 'Физика', 'Информатика'], dormitory: true, militaryDepartment: true, internationalPrograms: true, sportFacilities: true, distanceLearning: false, rank: 5, departments: ['Институт ядерной физики и технологий', 'Институт лазерных и плазменных технологий', 'Институт интеллектуальных кибернетических систем', 'Институт нанотехнологий в электронике, спинтронике и фотонике', 'Институт финансовых технологий и экономической безопасности'] },
+    { id: 6, name: 'Национальный исследовательский университет "Высшая школа экономики"', region: 'Москва', budget: 350000, score: 91, specialization: 'Экономический', subjects: ['Математика', 'Обществознание', 'История', 'Иностранный язык'], dormitory: true, militaryDepartment: false, internationalPrograms: true, sportFacilities: true, distanceLearning: true, rank: 6, departments: ['Факультет экономических наук', 'Факультет компьютерных наук', 'Факультет бизнеса и менеджмента', 'Факультет социальных наук', 'Факультет мировой экономики и мировой политики', 'Факультет права'] },
+    { id: 7, name: 'МГИМО МИД России', region: 'Москва', budget: 400000, score: 92, specialization: 'Гуманитарный', subjects: ['История', 'Обществознание', 'Иностранный язык'], dormitory: true, militaryDepartment: true, internationalPrograms: true, sportFacilities: true, distanceLearning: false, rank: 7, departments: ['Факультет международных отношений', 'Международно-правовой факультет', 'Факультет международных экономических отношений', 'Факультет международной журналистики', 'Факультет управления и политики'] },
+    { id: 8, name: 'Санкт-Петербургский политехнический университет Петра Великого', region: 'Санкт-Петербург', budget: 250000, score: 87, specialization: 'Технический', subjects: ['Математика', 'Физика', 'Информатика'], dormitory: true, militaryDepartment: true, internationalPrograms: true, sportFacilities: true, distanceLearning: true, rank: 8, departments: ['Институт компьютерных наук и технологий', 'Институт машиностроения, материалов и транспорта', 'Институт физики, нанотехнологий и телекоммуникаций', 'Институт энергетики', 'Институт промышленного менеджмента, экономики и торговли'] },
+    { id: 9, name: 'Национальный исследовательский Томский политехнический университет', region: 'Томск', budget: 200000, score: 85, specialization: 'Технический', subjects: ['Математика', 'Физика', 'Информатика'], dormitory: true, militaryDepartment: true, internationalPrograms: true, sportFacilities: true, distanceLearning: true, rank: 9, departments: ['Инженерная школа энергетики', 'Инженерная школа ядерных технологий', 'Инженерная школа природных ресурсов', 'Инженерная школа информационных технологий и робототехники', 'Школа инженерного предпринимательства'] },
+    { id: 10, name: 'Российская академия народного хозяйства и государственной службы', region: 'Москва', budget: 320000, score: 88, specialization: 'Экономический', subjects: ['Математика', 'Обществознание', 'История', 'Иностранный язык'], dormitory: true, militaryDepartment: false, internationalPrograms: true, sportFacilities: true, distanceLearning: true, rank: 10, departments: ['Институт государственной службы и управления', 'Институт экономики, математики и информационных технологий', 'Институт права и национальной безопасности', 'Институт бизнеса и делового администрирования', 'Институт общественных наук'] },
+    { id: 11, name: 'Уральский федеральный университет', region: 'Екатеринбург', budget: 180000, score: 82, specialization: 'Универсальный', subjects: ['Математика', 'Физика', 'Химия', 'Информатика', 'История'], dormitory: true, militaryDepartment: true, internationalPrograms: true, sportFacilities: true, distanceLearning: true, rank: 11, departments: ['Институт естественных наук и математики', 'Институт радиоэлектроники и информационных технологий', 'Уральский гуманитарный институт', 'Институт экономики и управления', 'Физико-технологический институт'] },
+    { id: 12, name: 'Финансовый университет при Правительстве РФ', region: 'Москва', budget: 300000, score: 87, specialization: 'Экономический', subjects: ['Математика', 'Обществознание', 'История', 'Иностранный язык'], dormitory: true, militaryDepartment: false, internationalPrograms: true, sportFacilities: true, distanceLearning: true, rank: 12, departments: ['Факультет финансов', 'Факультет экономики', 'Факультет налогов, аудита и бизнес-анализа', 'Факультет информационных технологий и анализа больших данных', 'Юридический факультет'] },
+    { id: 13, name: 'Университет ИТМО', region: 'Санкт-Петербург', budget: 270000, score: 89, specialization: 'Технический', subjects: ['Математика', 'Физика', 'Информатика'], dormitory: true, militaryDepartment: false, internationalPrograms: true, sportFacilities: true, distanceLearning: true, rank: 13, departments: ['Факультет информационных технологий и программирования', 'Факультет систем управления и робототехники', 'Факультет фотоники', 'Факультет цифровых трансформаций', 'Факультет биотехнологий'] },
+    { id: 14, name: 'Новосибирский национальный исследовательский государственный университет', region: 'Новосибирск', budget: 190000, score: 86, specialization: 'Универсальный', subjects: ['Математика', 'Физика', 'Химия', 'Биология', 'Информатика'], dormitory: true, militaryDepartment: true, internationalPrograms: true, sportFacilities: true, distanceLearning: true, rank: 14, departments: ['Механико-математический факультет', 'Физический факультет', 'Факультет естественных наук', 'Факультет информационных технологий', 'Экономический факультет'] },
+    { id: 15, name: 'Первый Московский государственный медицинский университет имени И.М. Сеченова', region: 'Москва', budget: 320000, score: 88, specialization: 'Медицинский', subjects: ['Химия', 'Биология', 'Русский язык'], dormitory: true, militaryDepartment: false, internationalPrograms: true, sportFacilities: true, distanceLearning: false, rank: 15, departments: ['Лечебный факультет', 'Педиатрический факультет', 'Стоматологический факультет', 'Фармацевтический факультет', 'Медико-профилактический факультет'] },
+    { id: 16, name: 'Российский экономический университет имени Г.В. Плеханова', region: 'Москва', budget: 280000, score: 85, specialization: 'Экономический', subjects: ['Математика', 'Обществознание', 'Иностранный язык'], dormitory: true, militaryDepartment: false, internationalPrograms: true, sportFacilities: true, distanceLearning: true, rank: 16, departments: ['Факультет экономики и права', 'Факультет менеджмента', 'Факультет маркетинга', 'Факультет бизнеса', 'Факультет дистанционного обучения'] },
+    { id: 17, name: 'Университет МИСИС', region: 'Москва', budget: 260000, score: 84, specialization: 'Технический', subjects: ['Математика', 'Физика', 'Информатика'], dormitory: true, militaryDepartment: false, internationalPrograms: true, sportFacilities: true, distanceLearning: true, rank: 17, departments: ['Институт экотехнологий и инжиниринга', 'Институт новых материалов и нанотехнологий', 'Институт информационных технологий и компьютерных наук', 'Горный институт', 'Институт экономики и управления промышленными предприятиями'] },
+    { id: 18, name: 'Российский университет дружбы народов', region: 'Москва', budget: 250000, score: 83, specialization: 'Универсальный', subjects: ['Математика', 'Физика', 'Химия', 'Биология', 'История', 'Обществознание', 'Иностранный язык'], dormitory: true, militaryDepartment: false, internationalPrograms: true, sportFacilities: true, distanceLearning: true, rank: 18, departments: ['Медицинский институт', 'Инженерная академия', 'Институт иностранных языков', 'Юридический институт', 'Экономический факультет'] },
+    { id: 19, name: 'Национальный исследовательский Томский государственный университет', region: 'Томск', budget: 180000, score: 82, specialization: 'Универсальный', subjects: ['Математика', 'Физика', 'История', 'Литература'], dormitory: true, militaryDepartment: true, internationalPrograms: true, sportFacilities: true, distanceLearning: true, rank: 19, departments: ['Физический факультет', 'Механико-математический факультет', 'Исторический факультет', 'Филологический факультет', 'Юридический институт'] },
+    { id: 20, name: 'Казанский (Приволжский) федеральный университет', region: 'Казань', budget: 170000, score: 81, specialization: 'Универсальный', subjects: ['Математика', 'Физика', 'Химия', 'История', 'Обществознание'], dormitory: true, militaryDepartment: true, internationalPrograms: true, sportFacilities: true, distanceLearning: true, rank: 20, departments: ['Институт физики', 'Институт вычислительной математики и информационных технологий', 'Институт филологии и межкультурной коммуникации', 'Юридический факультет', 'Институт международных отношений'] },
+    { id: 21, name: 'Российский национальный исследовательский медицинский университет имени Н.И. Пирогова', region: 'Москва', budget: 290000, score: 86, specialization: 'Медицинский', subjects: ['Химия', 'Биология', 'Русский язык'], dormitory: true, militaryDepartment: false, internationalPrograms: true, sportFacilities: true, distanceLearning: false, rank: 21, departments: ['Лечебный факультет', 'Педиатрический факультет', 'Стоматологический факультет', 'Психолого-социальный факультет', 'Медико-биологический факультет'] },
+    { id: 22, name: 'Московский авиационный институт', region: 'Москва', budget: 240000, score: 82, specialization: 'Технический', subjects: ['Математика', 'Физика', 'Информатика'], dormitory: true, militaryDepartment: true, internationalPrograms: true, sportFacilities: true, distanceLearning: false, rank: 22, departments: ['Институт авиационной техники', 'Институт двигателей и энергетических установок', 'Институт систем управления, информатики и электроэнергетики', 'Институт радиоэлектроники, инфокоммуникаций и информационной безопасности', 'Институт инженерной экономики и гуманитарных наук'] },
+    { id: 23, name: 'Сибирский федеральный университет', region: 'Красноярск', budget: 160000, score: 78, specialization: 'Универсальный', subjects: ['Математика', 'Физика', 'Информатика', 'Химия'], dormitory: true, militaryDepartment: true, internationalPrograms: true, sportFacilities: true, distanceLearning: true, rank: 23, departments: ['Институт математики и фундаментальной информатики', 'Институт космических и информационных технологий', 'Институт нефти и газа', 'Институт экономики, управления и природопользования', 'Юридический институт'] },
+    { id: 24, name: 'Национальный исследовательский университет "МЭИ"', region: 'Москва', budget: 230000, score: 81, specialization: 'Технический', subjects: ['Математика', 'Физика', 'Информатика'], dormitory: true, militaryDepartment: true, internationalPrograms: true, sportFacilities: true, distanceLearning: true, rank: 24, departments: ['Институт энергомашиностроения и механики', 'Институт тепловой и атомной энергетики', 'Институт электротехники', 'Институт электроэнергетики', 'Институт информационных и вычислительных технологий'] },
+    { id: 25, name: 'Дальневосточный федеральный университет', region: 'Владивосток', budget: 170000, score: 79, specialization: 'Универсальный', subjects: ['Математика', 'Физика', 'Химия', 'Биология', 'История'], dormitory: true, militaryDepartment: true, internationalPrograms: true, sportFacilities: true, distanceLearning: true, rank: 25, departments: ['Школа естественных наук', 'Политехнический институт', 'Школа экономики и менеджмента', 'Юридическая школа', 'Школа биомедицины'] },
+    { id: 26, name: 'Московский государственный юридический университет имени О.Е. Кутафина', region: 'Москва', budget: 270000, score: 85, specialization: 'Юридический', subjects: ['История', 'Обществознание', 'Русский язык'], dormitory: true, militaryDepartment: false, internationalPrograms: true, sportFacilities: true, distanceLearning: true, rank: 26, departments: ['Институт частного права', 'Институт публичного права и управления', 'Институт прокуратуры', 'Институт адвокатуры', 'Международно-правовой институт'] },
+    { id: 27, name: 'Первый Санкт-Петербургский государственный медицинский университет', region: 'Санкт-Петербург', budget: 260000, score: 84, specialization: 'Медицинский', subjects: ['Химия', 'Биология', 'Русский язык'], dormitory: true, militaryDepartment: false, internationalPrograms: true, sportFacilities: true, distanceLearning: false, rank: 27, departments: ['Лечебный факультет', 'Стоматологический факультет', 'Педиатрический факультет', 'Фармацевтический факультет', 'Факультет спортивной медицины'] },
+    { id: 28, name: 'Российский государственный университет нефти и газа имени И.М. Губкина', region: 'Москва', budget: 250000, score: 83, specialization: 'Технический', subjects: ['Математика', 'Физика', 'Химия'], dormitory: true, militaryDepartment: true, internationalPrograms: true, sportFacilities: true, distanceLearning: false, rank: 28, departments: ['Факультет геологии и геофизики нефти и газа', 'Факультет разработки нефтяных и газовых месторождений', 'Факультет проектирования, сооружения и эксплуатации систем трубопроводного транспорта', 'Факультет инженерной механики', 'Факультет химической технологии и экологии'] },
+    { id: 29, name: 'Санкт-Петербургский горный университет', region: 'Санкт-Петербург', budget: 240000, score: 82, specialization: 'Технический', subjects: ['Математика', 'Физика', 'Химия'], dormitory: true, militaryDepartment: true, internationalPrograms: true, sportFacilities: true, distanceLearning: false, rank: 29, departments: ['Горный факультет', 'Нефтегазовый факультет', 'Факультет переработки минерального сырья', 'Строительный факультет', 'Электромеханический факультет'] },
+    { id: 30, name: 'Южный федеральный университет', region: 'Ростов-на-Дону', budget: 150000, score: 77, specialization: 'Универсальный', subjects: ['Математика', 'Физика', 'Химия', 'Биология', 'История'], dormitory: true, militaryDepartment: true, internationalPrograms: true, sportFacilities: true, distanceLearning: true, rank: 30, departments: ['Физический факультет', 'Мехмат', 'Институт компьютерных технологий и информационной безопасности', 'Институт филологии, журналистики и межкультурной коммуникации', 'Экономический факультет'] },
+    { id: 31, name: 'Московский педагогический государственный университет', region: 'Москва', budget: 180000, score: 78, specialization: 'Педагогический', subjects: ['Русский язык', 'Литература', 'Обществознание', 'История'], dormitory: true, militaryDepartment: false, internationalPrograms: true, sportFacilities: true, distanceLearning: true, rank: 31 },
+    { id: 32, name: 'Национальный исследовательский Московский государственный строительный университет', region: 'Москва', budget: 220000, score: 80, specialization: 'Технический', subjects: ['Математика', 'Физика', 'Информатика'], dormitory: true, militaryDepartment: true, internationalPrograms: true, sportFacilities: true, distanceLearning: true, rank: 32 },
+    { id: 33, name: 'Московский государственный лингвистический университет', region: 'Москва', budget: 240000, score: 82, specialization: 'Гуманитарный', subjects: ['Иностранный язык', 'Русский язык', 'История', 'Литература'], dormitory: true, militaryDepartment: false, internationalPrograms: true, sportFacilities: true, distanceLearning: true, rank: 33 },
+    { id: 34, name: 'Национальный исследовательский Нижегородский государственный университет', region: 'Нижний Новгород', budget: 160000, score: 78, specialization: 'Универсальный', subjects: ['Математика', 'Физика', 'Химия', 'Биология', 'История'], dormitory: true, militaryDepartment: true, internationalPrograms: true, sportFacilities: true, distanceLearning: true, rank: 34 },
+    { id: 35, name: 'Всероссийская академия внешней торговли', region: 'Москва', budget: 280000, score: 85, specialization: 'Экономический', subjects: ['Математика', 'Иностранный язык', 'Обществознание'], dormitory: true, militaryDepartment: false, internationalPrograms: true, sportFacilities: true, distanceLearning: true, rank: 35 },
+    { id: 36, name: 'Российский государственный педагогический университет имени А. И. Герцена', region: 'Санкт-Петербург', budget: 170000, score: 78, specialization: 'Педагогический', subjects: ['Русский язык', 'Литература', 'Обществознание', 'История'], dormitory: true, militaryDepartment: false, internationalPrograms: true, sportFacilities: true, distanceLearning: true, rank: 36 },
+    { id: 37, name: 'Санкт-Петербургский государственный электротехнический университет "ЛЭТИ"', region: 'Санкт-Петербург', budget: 210000, score: 80, specialization: 'Технический', subjects: ['Математика', 'Физика', 'Информатика'], dormitory: true, militaryDepartment: true, internationalPrograms: true, sportFacilities: true, distanceLearning: true, rank: 37 },
+    { id: 38, name: 'Санкт-Петербургский государственный экономический университет', region: 'Санкт-Петербург', budget: 230000, score: 81, specialization: 'Экономический', subjects: ['Математика', 'Обществознание', 'Иностранный язык'], dormitory: true, militaryDepartment: false, internationalPrograms: true, sportFacilities: true, distanceLearning: true, rank: 38 },
+    { id: 39, name: 'Белгородский государственный национальный исследовательский университет', region: 'Белгород', budget: 140000, score: 75, specialization: 'Универсальный', subjects: ['Математика', 'Физика', 'Химия', 'Биология', 'История'], dormitory: true, militaryDepartment: true, internationalPrograms: true, sportFacilities: true, distanceLearning: true, rank: 39 },
+    { id: 40, name: 'Новосибирский государственный технический университет', region: 'Новосибирск', budget: 150000, score: 76, specialization: 'Технический', subjects: ['Математика', 'Физика', 'Информатика'], dormitory: true, militaryDepartment: true, internationalPrograms: true, sportFacilities: true, distanceLearning: true, rank: 40 },
+    { id: 41, name: 'Российский химико-технологический университет имени Д.И. Менделеева', region: 'Москва', budget: 200000, score: 79, specialization: 'Технический', subjects: ['Математика', 'Химия', 'Физика'], dormitory: true, militaryDepartment: false, internationalPrograms: true, sportFacilities: true, distanceLearning: false, rank: 41 },
+    { id: 42, name: 'Национальный медицинский исследовательский центр имени В.А. Алмазова', region: 'Санкт-Петербург', budget: 270000, score: 85, specialization: 'Медицинский', subjects: ['Химия', 'Биология', 'Русский язык'], dormitory: true, militaryDepartment: false, internationalPrograms: true, sportFacilities: true, distanceLearning: false, rank: 42 },
+    { id: 43, name: 'Российский государственный аграрный университет – МСХА имени К.А. Тимирязева', region: 'Москва', budget: 160000, score: 77, specialization: 'Аграрный', subjects: ['Биология', 'Химия', 'Математика'], dormitory: true, militaryDepartment: true, internationalPrograms: true, sportFacilities: true, distanceLearning: true, rank: 43 },
+    { id: 44, name: 'Казанский государственный медицинский университет', region: 'Казань', budget: 180000, score: 78, specialization: 'Медицинский', subjects: ['Химия', 'Биология', 'Русский язык'], dormitory: true, militaryDepartment: false, internationalPrograms: true, sportFacilities: true, distanceLearning: false, rank: 44 },
+    { id: 45, name: 'Самарский национальный исследовательский университет имени академика С.П. Королёва', region: 'Самара', budget: 170000, score: 78, specialization: 'Технический', subjects: ['Математика', 'Физика', 'Информатика'], dormitory: true, militaryDepartment: true, internationalPrograms: true, sportFacilities: true, distanceLearning: true, rank: 45 },
+    { id: 46, name: 'Воронежский государственный университет', region: 'Воронеж', budget: 140000, score: 75, specialization: 'Универсальный', subjects: ['Математика', 'Физика', 'Химия', 'Биология', 'История'], dormitory: true, militaryDepartment: true, internationalPrograms: true, sportFacilities: true, distanceLearning: true, rank: 46 },
+    { id: 47, name: 'Уфимский государственный нефтяной технический университет', region: 'Уфа', budget: 150000, score: 76, specialization: 'Технический', subjects: ['Математика', 'Физика', 'Химия'], dormitory: true, militaryDepartment: true, internationalPrograms: true, sportFacilities: true, distanceLearning: true, rank: 47 },
+    { id: 48, name: 'Санкт-Петербургский государственный архитектурно-строительный университет', region: 'Санкт-Петербург', budget: 200000, score: 79, specialization: 'Технический', subjects: ['Математика', 'Физика', 'Рисунок'], dormitory: true, militaryDepartment: false, internationalPrograms: true, sportFacilities: true, distanceLearning: false, rank: 48 },
+    { id: 49, name: 'Южно-Уральский государственный университет', region: 'Челябинск', budget: 130000, score: 74, specialization: 'Универсальный', subjects: ['Математика', 'Физика', 'Информатика', 'Химия'], dormitory: true, militaryDepartment: true, internationalPrograms: true, sportFacilities: true, distanceLearning: true, rank: 49 },
+    { id: 50, name: 'МИРЭА - Российский технологический университет', region: 'Москва', budget: 190000, score: 79, specialization: 'Технический', subjects: ['Математика', 'Физика', 'Информатика'], dormitory: true, militaryDepartment: true, internationalPrograms: true, sportFacilities: true, distanceLearning: true, rank: 50 },
+    { id: 51, name: 'Тюменский государственный университет', region: 'Тюмень', budget: 140000, score: 75, specialization: 'Универсальный', subjects: ['Математика', 'Физика', 'Химия', 'Биология', 'История'], dormitory: true, militaryDepartment: true, internationalPrograms: true, sportFacilities: true, distanceLearning: true, rank: 51 },
+    { id: 52, name: 'Ставропольский государственный аграрный университет', region: 'Ставрополь', budget: 120000, score: 73, specialization: 'Аграрный', subjects: ['Биология', 'Химия', 'Математика'], dormitory: true, militaryDepartment: true, internationalPrograms: true, sportFacilities: true, distanceLearning: true, rank: 52 }
+  ]
+
+  const handleAnswer = (field: string, value: string | string[] | boolean) => {
+    setAnswers(prev => ({ ...prev, [field]: value }))
+  }
+
+  const handleSubjectToggle = (subject: string) => {
+    const updatedSubjects = [...answers.subjects]
+    if (updatedSubjects.includes(subject)) {
+      const index = updatedSubjects.indexOf(subject)
+      updatedSubjects.splice(index, 1)
+    } else {
+      updatedSubjects.push(subject)
+    }
+    handleAnswer('subjects', updatedSubjects)
+  }
+
+  const handleNextStep = () => {
+    if (currentStep < totalSteps) {
+      setCurrentStep(currentStep + 1)
+    } else {
+      setShowResults(true)
+    }
+  }
+
+  const handlePrevStep = () => {
+    if (currentStep > 1) {
+      setCurrentStep(currentStep - 1)
+    }
+  }
+
+  const getTopUniversities = () => {
+    console.log("Текущие ответы:", answers);
+
+    // Всегда возвращаем хотя бы топ-10 вузов по рейтингу, если нет критериев
+    if (
+      answers.budget === '' &&
+      answers.region === '' &&
+      answers.score === '' &&
+      answers.specialization === '' &&
+      answers.subjects.length === 0
+    ) {
+      console.log("Нет критериев, возвращаем топ-10 по рейтингу");
+      return universities
+        .sort((a, b) => a.rank - b.rank)
+        .slice(0, 10);
+    }
+
+    // Фильтрация вузов по критериям
+    const filteredUniversities = universities.filter(uni => {
+      // Фильтрация по бюджету
+      const budgetMatch =
+        answers.budget === '' ? true :
+        answers.budget === 'low' ? uni.budget <= 150000 :
+        answers.budget === 'medium' ? (uni.budget > 150000 && uni.budget <= 250000) :
+        answers.budget === 'high' ? uni.budget > 250000 : true;
+
+      // Фильтрация по региону
+      const regionMatch = answers.region === '' ? true : uni.region === answers.region;
+
+      // Фильтрация по баллам
+      const scoreMatch =
+        answers.score === '' ? true :
+        answers.score === 'low' ? uni.score <= 75 :
+        answers.score === 'medium' ? (uni.score > 75 && uni.score <= 85) :
+        answers.score === 'high' ? uni.score > 85 : true;
+
+      // Фильтрация по специализации
+      const specializationMatch = answers.specialization === '' ? true : uni.specialization === answers.specialization;
+
+      // Фильтрация по предметам (должны совпадать все выбранные предметы)
+      const subjectsMatch = answers.subjects.length === 0 ||
+        answers.subjects.every(subject => uni.subjects.includes(subject));
+
+      // Проверяем все условия
+      const result = budgetMatch && regionMatch && scoreMatch && specializationMatch && subjectsMatch;
+
+      // Для отладки
+      if (!result) {
+        console.log(`Вуз ${uni.name} не подходит:`, {
+          budgetMatch, regionMatch, scoreMatch, specializationMatch, subjectsMatch
+        });
+      }
+
+      return result;
+    });
+
+    console.log("Отфильтрованные вузы:", filteredUniversities.length);
+
+    // Если после фильтрации ничего не осталось, возвращаем топ-10 по рейтингу
+    if (filteredUniversities.length === 0) {
+      console.log("После фильтрации ничего не осталось, возвращаем топ-10 по рейтингу");
+      return universities
+        .sort((a, b) => a.rank - b.rank)
+        .slice(0, 10);
+    }
+
+    // Сортировка по рейтингу и возврат топ-10
+    return filteredUniversities
+      .sort((a, b) => a.rank - b.rank)
+      .slice(0, 10);
+  }
+
+  // Список всех возможных предметов
+  const allSubjects = [
+    'Математика', 'Физика', 'Химия', 'Биология', 'История',
+    'Обществознание', 'Литература', 'Русский язык', 'Иностранный язык',
+    'Информатика', 'География', 'Рисунок'
+  ]
+
+  // Список всех регионов
+  const allRegions = [
+    'Москва', 'Санкт-Петербург', 'Томск', 'Новосибирск', 'Екатеринбург',
+    'Казань', 'Красноярск', 'Владивосток', 'Ростов-на-Дону', 'Нижний Новгород',
+    'Белгород', 'Уфа', 'Самара', 'Воронеж', 'Челябинск', 'Тюмень', 'Ставрополь'
+  ]
+
+  // Отображение текущего шага анкеты
+  const renderStep = () => {
+    switch (currentStep) {
+      case 1:
+        return (
+          <div>
+            <h2 className="text-xl font-semibold mb-4">Шаг 1: Бюджет на обучение</h2>
+            <select
+              className="w-full p-3 rounded-lg focus:ring-2 focus:ring-[var(--primary)]"
+              value={answers.budget}
+              onChange={(e) => handleAnswer('budget', e.target.value)}
+            >
+              <option value="">Любой</option>
+              <option value="low">До 150 000 руб/год</option>
+              <option value="medium">150 000 - 250 000 руб/год</option>
+              <option value="high">Свыше 250 000 руб/год</option>
+            </select>
+          </div>
+        )
+      case 2:
+        return (
+          <div>
+            <h2 className="text-xl font-semibold mb-4">Шаг 2: Регион</h2>
+            <select
+              className="w-full p-3 rounded-lg focus:ring-2 focus:ring-[var(--primary)]"
+              value={answers.region}
+              onChange={(e) => handleAnswer('region', e.target.value)}
+            >
+              <option value="">Любой</option>
+              {allRegions.map(region => (
+                <option key={region} value={region}>{region}</option>
+              ))}
+            </select>
+          </div>
+        )
+      case 3:
+        return (
+          <div>
+            <h2 className="text-xl font-semibold mb-4">Шаг 3: Средний балл ЕГЭ</h2>
+            <select
+              className="w-full p-3 rounded-lg focus:ring-2 focus:ring-[var(--primary)]"
+              value={answers.score}
+              onChange={(e) => handleAnswer('score', e.target.value)}
+            >
+              <option value="">Любой</option>
+              <option value="low">До 75</option>
+              <option value="medium">75-85</option>
+              <option value="high">85+</option>
+            </select>
+          </div>
+        )
+      case 4:
+        return (
+          <div>
+            <h2 className="text-xl font-semibold mb-4">Шаг 4: Специализация</h2>
+            <select
+              className="w-full p-2 bg-gray-700 rounded"
+              value={answers.specialization}
+              onChange={(e) => handleAnswer('specialization', e.target.value)}
+            >
+              <option value="">Любая</option>
+              <option value="Технический">Техническая</option>
+              <option value="Гуманитарный">Гуманитарная</option>
+              <option value="Медицинский">Медицинская</option>
+              <option value="Экономический">Экономическая</option>
+              <option value="Юридический">Юридическая</option>
+              <option value="Педагогический">Педагогическая</option>
+              <option value="Аграрный">Аграрная</option>
+              <option value="Универсальный">Универсальная</option>
+            </select>
+          </div>
+        )
+      case 5:
+        return (
+          <div>
+            <h2 className="text-xl font-semibold mb-4">Шаг 5: Предпочитаемые предметы</h2>
+            <p className="mb-2 text-gray-300">Выберите предметы, которые вы хотели бы изучать (можно выбрать несколько)</p>
+            <div className="grid grid-cols-2 gap-2">
+              {allSubjects.map(subject => (
+                <div key={subject} className="flex items-center">
+                  <input
+                    type="checkbox"
+                    id={subject}
+                    className="mr-2 h-4 w-4"
+                    checked={answers.subjects.includes(subject)}
+                    onChange={() => handleSubjectToggle(subject)}
+                  />
+                  <label htmlFor={subject}>{subject}</label>
+                </div>
+              ))}
+            </div>
+          </div>
+        )
+      default:
+        return null
+    }
+  }
+
+  return (
+    <div className="min-h-screen bg-[var(--background)] text-[var(--foreground)] p-4 md:p-8">
+      {!showResults ? (
+        <div className="max-w-md mx-auto perplexity-card p-6 slide-up">
+          <h1 className="text-2xl font-bold mb-6 text-center gradient-text">Анкета для подбора ВУЗа</h1>
+
+          <div className="mb-6 bg-[var(--input-bg)] h-2 rounded-full overflow-hidden">
+            <div
+              className="gradient-primary h-2 rounded-full transition-all duration-300"
+              style={{ width: `${(currentStep / totalSteps) * 100}%` }}
+            ></div>
+          </div>
+
+          <div className="space-y-6">
+            {renderStep()}
+
+            <div className="flex justify-between mt-8">
+              <button
+                className={`btn-secondary ${currentStep === 1 ? 'opacity-50 cursor-not-allowed' : ''}`}
+                onClick={handlePrevStep}
+                disabled={currentStep === 1}
+              >
+                Назад
+              </button>
+
+              <button
+                className="btn-primary"
+                onClick={currentStep === totalSteps ? () => setShowResults(true) : handleNextStep}
+              >
+                {currentStep === totalSteps ? 'Подобрать ВУЗы' : 'Далее'}
+              </button>
+            </div>
+          </div>
+        </div>
+      ) : (
+        <div className="max-w-4xl mx-auto fade-in">
+          <h1 className="text-2xl font-bold mb-6 text-center gradient-text">Рекомендуемые ВУЗы</h1>
+
+          <div className="space-y-4">
+            {getTopUniversities().length > 0 ? (
+              getTopUniversities().map(uni => (
+                <div key={uni.id} className="perplexity-card p-5 slide-up">
+                  <div className="flex justify-between items-start">
+                    <h2 className="text-xl font-semibold gradient-text">{uni.name}</h2>
+                    <span className="gradient-primary text-white px-2 py-1 rounded-full text-sm">Рейтинг: {uni.rank}</span>
+                  </div>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-2 mt-3">
+                    <p><span className="text-[var(--secondary)]">Регион:</span> {uni.region}</p>
+                    <p><span className="text-[var(--secondary)]">Стоимость:</span> {uni.budget.toLocaleString()} руб/год</p>
+                    <p><span className="text-[var(--secondary)]">Средний балл:</span> {uni.score}</p>
+                    <p><span className="text-[var(--secondary)]">Специализация:</span> {uni.specialization}</p>
+                  </div>
+                  <div className="mt-3">
+                    <p className="text-[var(--secondary)]">Предметы:</p>
+                    <div className="flex flex-wrap gap-1 mt-1">
+                      {uni.subjects.map(subject => (
+                        <span key={subject} className="bg-[var(--input-bg)] px-2 py-1 rounded-full text-xs">
+                          {subject}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+
+                  {uni.departments && uni.departments.length > 0 && (
+                    <div className="mt-3">
+                      <p className="text-[var(--secondary)]">Кафедры:</p>
+                      <div className="mt-1 text-sm">
+                        {uni.departments.slice(0, 3).map((dept, index) => (
+                          <div key={index} className="mb-1">
+                            <span className="text-[var(--primary)]">•</span> {dept}
+                          </div>
+                        ))}
+                        {uni.departments.length > 3 && (
+                          <div className="text-[var(--secondary)] text-xs mt-1">
+                            И еще {uni.departments.length - 3} кафедр...
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  )}
+
+                  <div className="mt-3 text-sm flex flex-wrap gap-2">
+                    {uni.dormitory && <span className="text-[var(--success)]">✓ Общежитие</span>}
+                    {uni.militaryDepartment && <span className="text-[var(--success)]">✓ Военная кафедра</span>}
+                    {uni.internationalPrograms && <span className="text-[var(--success)]">✓ Международные программы</span>}
+                  </div>
+                </div>
+              ))
+            ) : (
+              <div className="perplexity-card p-6 text-center">
+                <p className="text-xl">К сожалению, по вашим критериям не найдено подходящих ВУЗов</p>
+                <p className="mt-2 text-[var(--secondary)]">Попробуйте изменить параметры поиска</p>
+              </div>
+            )}
+          </div>
+
+          <button
+            className="mt-6 btn-secondary mx-auto block"
+            onClick={() => setShowResults(false)}
+          >
+            Вернуться к анкете
+          </button>
+        </div>
+      )}
+    </div>
+  )
+}
